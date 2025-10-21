@@ -1,14 +1,24 @@
 {
-  "name": "shadcnui",
-  "type": "module",
+  "name": "gulf-acorns",
   "packageManager": "pnpm@8.10.0",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint --quiet ./src",
-    "preview": "vite preview"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "preview": "next start",
+    "test": "vitest run",
+    "test:ui": "vitest",
+    "e2e": "playwright test",
+    "prisma:gen": "prisma generate",
+    "prisma:migrate": "prisma migrate dev -n init",
+    "prisma:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "seed": "echo 'No seed data needed for demo'"
   },
   "dependencies": {
+    "next": "^14.0.0",
+    "@prisma/client": "^5.0.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",
     "@radix-ui/react-alert-dialog": "^1.1.1",
@@ -49,9 +59,9 @@
     "lucide-react": "^0.462.0",
     "next-themes": "^0.4.6",
     "prismjs": "^1.29.0",
-    "react": "^19.1.1",
+    "react": "^18.2.0",
     "react-day-picker": "^9.9.0",
-    "react-dom": "^19.1.1",
+    "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-error-boundary": "^4.0.12",
     "react-hook-form": "^7.53.0",
@@ -67,6 +77,10 @@
     "zustand": "^4.5.0"
   },
   "devDependencies": {
+    "prisma": "^5.0.0",
+    "ts-node": "^10.9.0",
+    "vitest": "^1.0.0",
+    "@playwright/test": "^1.40.0",
     "@eslint/js": "^9.9.0",
     "@metagptx/vite-plugin-source-locator": "latest",
     "@tailwindcss/aspect-ratio": "^0.4.2",

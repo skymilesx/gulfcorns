@@ -8,6 +8,12 @@ import { RoundUpEngine, LanguageManager, StorageManager } from '@/lib/gulfAcorns
 import { mockUser, mockTransactions, portfolios, gulfCurrencies, UserData, RoundUpRule } from '@/data/mockData';
 import RoundUpEngineComponent from '@/components/RoundUpEngine';
 import InvestmentChart from '@/components/InvestmentChart';
+import TopBarControls from '@/components/TopBarControls';
+import RuleCard from '@/components/RuleCard';
+import SimulatePurchase from '@/components/SimulatePurchase';
+import InvestWidget from '@/components/InvestWidget';
+import InvestedChart from '@/components/InvestedChart';
+import { useGulfAcornsStore, getTranslation } from '@/lib/store';
 import { 
   Wallet, 
   TrendingUp, 
@@ -21,10 +27,23 @@ import {
 } from 'lucide-react';
 
 export default function Dashboard() {
-  const [language, setLanguage] = useState<'en' | 'ar'>('en');
   const [userData, setUserData] = useState<UserData>(mockUser);
   const [activeTab, setActiveTab] = useState('overview');
-  const isRTL = LanguageManager.isRTL(language);
+  
+  // Use Zustand store
+  const {
+    language,
+    currency,
+    isRTL,
+    setLanguage,
+    getCurrencySymbol,
+    getTotalBalance,
+    getTodayRoundUps,
+    simulatedPurchases,
+    pendingSpare,
+    totalInvested,
+    totalReturns
+  } = useGulfAcornsStore();
 
   useEffect(() => {
     // Load user data from localStorage
@@ -45,72 +64,12 @@ export default function Dashboard() {
   };
 
   const currentPortfolio = portfolios.find(p => p.id === userData.selectedPortfolio) || portfolios[1];
-  const currencySymbol = gulfCurrencies.find(c => c.code === userData.currency)?.symbol || userData.currency;
   const performanceData = RoundUpEngine.generatePerformanceData();
 
-  const texts = {
-    en: {
-      dashboard: "Dashboard",
-      overview: "Overview",
-      roundUps: "Round-Ups",
-      investments: "Investments",
-      settings: "Settings",
-      totalBalance: "Total Balance",
-      totalInvested: "Total Invested",
-      totalReturns: "Total Returns",
-      roundUpBalance: "Round-Up Balance",
-      recentActivity: "Recent Activity",
-      quickActions: "Quick Actions",
-      addFunds: "Add Funds",
-      withdraw: "Withdraw",
-      viewPortfolio: "View Portfolio",
-      notifications: "Notifications",
-      language: "العربية",
-      welcomeBack: "Welcome back",
-      todaysRoundUps: "Today's Round-Ups",
-      monthlyGoal: "Monthly Goal",
-      portfolioPerformance: "Portfolio Performance",
-      linkedAccounts: "Linked Accounts",
-      primaryCard: "Primary Card",
-      active: "Active",
-      invest: "Invest",
-      pending: "Pending"
-    },
-    ar: {
-      dashboard: "لوحة التحكم",
-      overview: "نظرة عامة",
-      roundUps: "التقريب",
-      investments: "الاستثمارات",
-      settings: "الإعدادات",
-      totalBalance: "إجمالي الرصيد",
-      totalInvested: "إجمالي الاستثمار",
-      totalReturns: "إجمالي العوائد",
-      roundUpBalance: "رصيد التقريب",
-      recentActivity: "النشاط الأخير",
-      quickActions: "إجراءات سريعة",
-      addFunds: "إضافة أموال",
-      withdraw: "سحب",
-      viewPortfolio: "عرض المحفظة",
-      notifications: "الإشعارات",
-      language: "English",
-      welcomeBack: "مرحباً بعودتك",
-      todaysRoundUps: "تقريب اليوم",
-      monthlyGoal: "الهدف الشهري",
-      portfolioPerformance: "أداء المحفظة",
-      linkedAccounts: "الحسابات المربوطة",
-      primaryCard: "البطاقة الأساسية",
-      active: "نشط",
-      invest: "استثمر",
-      pending: "معلق"
-    }
-  };
-
-  const t = texts[language];
-
-  const totalBalance = userData.totalInvested + userData.totalReturns + userData.totalRoundUps;
-  const todaysRoundUps = mockTransactions.slice(0, 2).reduce((sum, tx) => 
-    sum + RoundUpEngine.calculateRoundUp(tx.amount, userData.roundUpRule), 0
-  );
+  const t = (key: string) => getTranslation(key, language);
+  const currencySymbol = getCurrencySymbol();
+  const totalBalance = getTotalBalance();
+  const todaysRoundUps = getTodayRoundUps();
 
   return (
     <div className={`min-h-screen bg-gray-50 ${isRTL ? 'rtl' : 'ltr'}`} dir={LanguageManager.getDirection(language)}>
@@ -125,17 +84,14 @@ export default function Dashboard() {
                 </div>
                 <span className="text-xl font-bold text-green-600">Gulf Acorns</span>
               </div>
-              <Badge variant="secondary">{t.dashboard}</Badge>
+              <Badge variant="secondary">{t('dashboard')}</Badge>
             </div>
 
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="icon">
                 <Bell className="h-5 w-5" />
               </Button>
-              <div className="flex items-center gap-2">
-                <span className="text-sm">{t.language}</span>
-                <Switch checked={language === 'ar'} onCheckedChange={toggleLanguage} />
-              </div>
+              <TopBarControls />
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
                   <span className="text-white text-sm font-medium">
@@ -153,7 +109,7 @@ export default function Dashboard() {
         {/* Welcome Section */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold mb-2">
-            {t.welcomeBack}, {userData.name.split(' ')[0]}!
+            {language === 'ar' ? 'مرحباً بعودتك' : 'Welcome back'}, {userData.name.split(' ')[0]}!
           </h1>
           <p className="text-muted-foreground">
             {new Date().toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US', {
@@ -171,7 +127,7 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t.totalBalance}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('totalBalance')}</p>
                   <p className="text-2xl font-bold">{currencySymbol} {totalBalance.toFixed(2)}</p>
                 </div>
                 <Wallet className="h-8 w-8 text-green-600" />
@@ -183,8 +139,8 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t.totalInvested}</p>
-                  <p className="text-2xl font-bold">{currencySymbol} {userData.totalInvested.toFixed(2)}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('totalInvested')}</p>
+                  <p className="text-2xl font-bold">{currencySymbol} {totalInvested.toFixed(2)}</p>
                 </div>
                 <TrendingUp className="h-8 w-8 text-blue-600" />
               </div>
@@ -195,14 +151,14 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t.totalReturns}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('totalReturns')}</p>
                   <div className="flex items-center gap-2">
-                    <p className={`text-2xl font-bold ${userData.totalReturns >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      {currencySymbol} {userData.totalReturns.toFixed(2)}
+                    <p className={`text-2xl font-bold ${totalReturns >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                      {currencySymbol} {totalReturns.toFixed(2)}
                     </p>
                   </div>
                 </div>
-                {userData.totalReturns >= 0 ? 
+                {totalReturns >= 0 ? 
                   <ArrowUpRight className="h-8 w-8 text-green-600" /> : 
                   <ArrowDownRight className="h-8 w-8 text-red-600" />
                 }
@@ -214,10 +170,10 @@ export default function Dashboard() {
             <CardContent className="pt-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-muted-foreground">{t.roundUpBalance}</p>
-                  <p className="text-2xl font-bold">{currencySymbol} {userData.totalRoundUps.toFixed(2)}</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('pendingSpare')}</p>
+                  <p className="text-2xl font-bold">{currencySymbol} {pendingSpare.toFixed(2)}</p>
                   <Badge variant="secondary" className="mt-1">
-                    {t.pending}
+                    {t('pending')}
                   </Badge>
                 </div>
                 <Coins className="h-8 w-8 text-purple-600" />
@@ -228,11 +184,12 @@ export default function Dashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="overview">{t.overview}</TabsTrigger>
-            <TabsTrigger value="roundups">{t.roundUps}</TabsTrigger>
-            <TabsTrigger value="investments">{t.investments}</TabsTrigger>
-            <TabsTrigger value="settings">{t.settings}</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="overview">{t('overview')}</TabsTrigger>
+            <TabsTrigger value="simulate">{t('addPurchase')}</TabsTrigger>
+            <TabsTrigger value="rules">{t('ruleType')}</TabsTrigger>
+            <TabsTrigger value="invest">{t('investNow')}</TabsTrigger>
+            <TabsTrigger value="settings">{t('settings')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
@@ -241,14 +198,14 @@ export default function Dashboard() {
               <div className="lg:col-span-2 space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle>{t.todaysRoundUps}</CardTitle>
+                    <CardTitle>{t('todaysRoundUps')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-green-600 mb-2">
                       {currencySymbol} {todaysRoundUps.toFixed(2)}
                     </div>
                     <p className="text-sm text-muted-foreground">
-                      From {mockTransactions.slice(0, 2).length} transactions today
+                      From {simulatedPurchases.filter(p => p.date.toDateString() === new Date().toDateString()).length} simulated purchases today
                     </p>
                   </CardContent>
                 </Card>
@@ -261,44 +218,46 @@ export default function Dashboard() {
                   currency={userData.currency}
                   language={language}
                 />
+
+                <InvestedChart investLots={[]} />
               </div>
 
               {/* Sidebar */}
               <div className="space-y-4">
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">{t.quickActions}</CardTitle>
+                    <CardTitle className="text-lg">{t('quickActions')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
                     <Button className="w-full justify-start">
                       <Coins className="mr-2 h-4 w-4" />
-                      {t.invest} {currencySymbol} {userData.totalRoundUps.toFixed(2)}
+                      {t('investNow')} {currencySymbol} {pendingSpare.toFixed(2)}
                     </Button>
                     <Button variant="outline" className="w-full justify-start">
                       <TrendingUp className="mr-2 h-4 w-4" />
-                      {t.addFunds}
+                      {t('addFunds')}
                     </Button>
                     <Button variant="outline" className="w-full justify-start">
                       <PieChart className="mr-2 h-4 w-4" />
-                      {t.viewPortfolio}
+                      {t('viewPortfolio')}
                     </Button>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle className="text-lg">{t.linkedAccounts}</CardTitle>
+                    <CardTitle className="text-lg">{t('linkedAccounts')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                       <div className="flex items-center gap-3">
                         <CreditCard className="h-5 w-5 text-blue-600" />
                         <div>
-                          <p className="font-medium text-sm">{t.primaryCard}</p>
+                          <p className="font-medium text-sm">{t('primaryCard')}</p>
                           <p className="text-xs text-muted-foreground">**** 4532</p>
                         </div>
                       </div>
-                      <Badge variant="default">{t.active}</Badge>
+                      <Badge variant="default">{t('active')}</Badge>
                     </div>
                   </CardContent>
                 </Card>
@@ -306,25 +265,47 @@ export default function Dashboard() {
             </div>
           </TabsContent>
 
-          <TabsContent value="roundups">
-            <RoundUpEngineComponent
-              transactions={mockTransactions}
-              currentRule={userData.roundUpRule}
-              currency={userData.currency}
-              language={language}
-              onRuleChange={handleRuleChange}
-            />
+          <TabsContent value="simulate">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <SimulatePurchase />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Simulated Purchases</CardTitle>
+                  <CardDescription>Your latest test purchases</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {simulatedPurchases.slice(0, 5).map((purchase) => (
+                      <div key={purchase.id} className="flex justify-between items-center p-3 bg-muted/50 rounded-lg" data-testid="purchase-row">
+                        <div>
+                          <p className="font-medium text-sm">{purchase.description}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {purchase.date.toLocaleDateString(language === 'ar' ? 'ar-SA' : 'en-US')}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-medium">{currencySymbol} {purchase.amount.toFixed(2)}</div>
+                          <div className="text-xs text-green-600">+{currencySymbol} {purchase.roundUp.toFixed(2)}</div>
+                        </div>
+                      </div>
+                    ))}
+                    {simulatedPurchases.length === 0 && (
+                      <p className="text-center text-muted-foreground py-8">
+                        {language === 'ar' ? 'لا توجد مشتريات محاكاة بعد' : 'No simulated purchases yet'}
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
 
-          <TabsContent value="investments">
-            <InvestmentChart
-              performanceData={performanceData}
-              portfolio={currentPortfolio}
-              totalInvested={userData.totalInvested}
-              totalReturns={userData.totalReturns}
-              currency={userData.currency}
-              language={language}
-            />
+          <TabsContent value="rules">
+            <RuleCard />
+          </TabsContent>
+
+          <TabsContent value="invest">
+            <InvestWidget />
           </TabsContent>
 
           <TabsContent value="settings">
@@ -332,7 +313,7 @@ export default function Dashboard() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Settings className="h-5 w-5" />
-                  {t.settings}
+                  {t('settings')}
                 </CardTitle>
                 <CardDescription>Manage your account preferences and settings</CardDescription>
               </CardHeader>

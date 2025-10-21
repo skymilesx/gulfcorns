@@ -2,6 +2,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { useGulfAcornsStore } from '@/lib/store';
 import Index from './pages/Index';
 import Dashboard from './pages/Dashboard';
 import Portfolio from './pages/Portfolio';
@@ -10,10 +11,11 @@ import NotFound from './pages/NotFound';
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
+const AppContent = () => {
+  const { language, isRTL } = useGulfAcornsStore();
+
+  return (
+    <div className={isRTL ? 'rtl' : 'ltr'} dir={isRTL ? 'rtl' : 'ltr'}>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
@@ -23,6 +25,15 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+    </div>
+  );
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <AppContent />
     </TooltipProvider>
   </QueryClientProvider>
 );

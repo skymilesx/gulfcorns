@@ -1,22 +1,18 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
 import { Progress } from '@/components/ui/progress';
 import { Coins, TrendingUp, Shield, Globe, Smartphone, PieChart, Wallet, ArrowUpRight } from 'lucide-react';
-import { LanguageManager } from '@/lib/gulfAcorns';
 import { gulfCurrencies, mockUser } from '@/data/mockData';
 import { useNavigate } from 'react-router-dom';
+import { useGulfAcornsStore, getTranslation } from '@/lib/store';
+import TopBarControls from '@/components/TopBarControls';
+import QAPanel from '@/components/QAPanel';
 
 export default function Index() {
-  const [language, setLanguage] = useState<'en' | 'ar'>('en');
   const navigate = useNavigate();
-  const isRTL = LanguageManager.isRTL(language);
-
-  const toggleLanguage = () => {
-    setLanguage(language === 'en' ? 'ar' : 'en');
-  };
+  const { language, isRTL, getCurrencySymbol } = useGulfAcornsStore();
 
   const handleGetStarted = () => {
     navigate('/dashboard');
@@ -26,82 +22,12 @@ export default function Index() {
     navigate('/dashboard');
   };
 
-  const texts = {
-    en: {
-      title: "Gulf Acorns",
-      subtitle: "Your spare change builds your future",
-      description: "Automatically invest spare change from everyday purchases into diversified portfolios tailored for the Gulf region",
-      getStarted: "Get Started",
-      learnMore: "Learn More",
-      howItWorks: "How It Works",
-      step1Title: "Link Your Card",
-      step1Desc: "Securely connect your bank card or account",
-      step2Title: "Set Round-Up Rules",
-      step2Desc: "Choose how to round up your purchases",
-      step3Title: "Auto-Invest",
-      step3Desc: "Your spare change is automatically invested",
-      features: "Features",
-      feature1Title: "Gulf Region Focus",
-      feature1Desc: "Support for SAR, AED, OMR, BHD, KWD, QAR currencies",
-      feature2Title: "Shariah Compliant",
-      feature2Desc: "Islamic finance compliant investment options",
-      feature3Title: "Smart Portfolios",
-      feature3Desc: "Diversified portfolios from conservative to aggressive",
-      feature4Title: "Secure & Regulated",
-      feature4Desc: "Bank-level security and regulatory compliance",
-      supportedCountries: "Supported Countries",
-      countries: ["Saudi Arabia", "UAE", "Oman", "Bahrain", "Kuwait", "Qatar"],
-      demo: "Try Demo",
-      language: "العربية",
-      demoTitle: "Live Demo",
-      totalBalance: "Total Balance",
-      totalInvested: "Total Invested",
-      roundUpBalance: "Round-Up Balance",
-      monthlyGrowth: "Monthly Growth",
-      portfolioPerformance: "Portfolio Performance",
-      recentRoundUps: "Recent Round-Ups"
-    },
-    ar: {
-      title: "جلف أكورنز",
-      subtitle: "فكة النقود تبني مستقبلك",
-      description: "استثمر فكة النقود من مشترياتك اليومية تلقائياً في محافظ متنوعة مصممة خصيصاً لمنطقة الخليج",
-      getStarted: "ابدأ الآن",
-      learnMore: "اعرف المزيد",
-      howItWorks: "كيف يعمل",
-      step1Title: "اربط بطاقتك",
-      step1Desc: "اربط بطاقتك المصرفية أو حسابك بأمان",
-      step2Title: "اضبط قواعد التقريب",
-      step2Desc: "اختر كيفية تقريب مشترياتك",
-      step3Title: "الاستثمار التلقائي",
-      step3Desc: "يتم استثمار فكة النقود تلقائياً",
-      features: "المميزات",
-      feature1Title: "تركيز على منطقة الخليج",
-      feature1Desc: "دعم للعملات: ريال، درهم، ريال عماني، دينار بحريني، دينار كويتي، ريال قطري",
-      feature2Title: "متوافق مع الشريعة",
-      feature2Desc: "خيارات استثمارية متوافقة مع التمويل الإسلامي",
-      feature3Title: "محافظ ذكية",
-      feature3Desc: "محافظ متنوعة من المحافظة إلى العدوانية",
-      feature4Title: "آمن ومنظم",
-      feature4Desc: "أمان بمستوى البنوك والامتثال التنظيمي",
-      supportedCountries: "الدول المدعومة",
-      countries: ["السعودية", "الإمارات", "عمان", "البحرين", "الكويت", "قطر"],
-      demo: "جرب العرض التوضيحي",
-      language: "English",
-      demoTitle: "عرض توضيحي مباشر",
-      totalBalance: "إجمالي الرصيد",
-      totalInvested: "إجمالي الاستثمار",
-      roundUpBalance: "رصيد التقريب",
-      monthlyGrowth: "النمو الشهري",
-      portfolioPerformance: "أداء المحفظة",
-      recentRoundUps: "التقريب الأخير"
-    }
-  };
 
-  const t = texts[language];
-  const currencySymbol = gulfCurrencies.find(c => c.code === mockUser.currency)?.symbol || mockUser.currency;
+  const t = (key: string) => getTranslation(key, language);
+  const currencySymbol = getCurrencySymbol();
 
   return (
-    <div className={`min-h-screen ${isRTL ? 'rtl' : 'ltr'}`} dir={LanguageManager.getDirection(language)}>
+    <div className={`min-h-screen ${isRTL ? 'rtl' : 'ltr'}`} dir={isRTL ? 'rtl' : 'ltr'}>
       {/* Header */}
       <header className="border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
@@ -109,16 +35,13 @@ export default function Index() {
             <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
               <Coins className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold text-green-600">{t.title}</span>
+            <span className="text-xl font-bold text-green-600">{language === 'ar' ? 'جلف أكورنز' : 'Gulf Acorns'}</span>
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm">{t.language}</span>
-              <Switch checked={language === 'ar'} onCheckedChange={toggleLanguage} />
-            </div>
-            <Button variant="outline" onClick={handleTryDemo}>{t.demo}</Button>
-            <Button onClick={handleGetStarted}>{t.getStarted}</Button>
+            <TopBarControls />
+            <Button variant="outline" onClick={handleTryDemo}>{language === 'ar' ? 'جرب العرض التوضيحي' : 'Try Demo'}</Button>
+            <Button onClick={handleGetStarted}>{language === 'ar' ? 'ابدأ الآن' : 'Get Started'}</Button>
           </div>
         </div>
       </header>
@@ -127,20 +50,23 @@ export default function Index() {
       <section className="py-20 bg-gradient-to-br from-green-50 to-blue-50">
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-5xl font-bold mb-4 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-            {t.title}
+            {language === 'ar' ? 'جلف أكورنز' : 'Gulf Acorns'}
           </h1>
-          <p className="text-xl text-muted-foreground mb-2">{t.subtitle}</p>
+          <p className="text-xl text-muted-foreground mb-2">{language === 'ar' ? 'فكة النقود تبني مستقبلك' : 'Your spare change builds your future'}</p>
           <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-            {t.description}
+            {language === 'ar' 
+              ? 'استثمر فكة النقود من مشترياتك اليومية تلقائياً في محافظ متنوعة مصممة خصيصاً لمنطقة الخليج'
+              : 'Automatically invest spare change from everyday purchases into diversified portfolios tailored for the Gulf region'
+            }
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
             <Button size="lg" className="px-8" onClick={handleGetStarted}>
               <Smartphone className="mr-2 h-5 w-5" />
-              {t.getStarted}
+              {language === 'ar' ? 'ابدأ الآن' : 'Get Started'}
             </Button>
             <Button size="lg" variant="outline" className="px-8">
-              {t.learnMore}
+              {language === 'ar' ? 'اعرف المزيد' : 'Learn More'}
             </Button>
           </div>
 
@@ -158,7 +84,7 @@ export default function Index() {
       {/* Live Demo Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">{t.demoTitle}</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{language === 'ar' ? 'عرض توضيحي مباشر' : 'Live Demo'}</h2>
           
           {/* Demo Dashboard */}
           <div className="max-w-6xl mx-auto">
@@ -167,7 +93,7 @@ export default function Index() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">{t.totalBalance}</p>
+                      <p className="text-sm font-medium text-muted-foreground">{language === 'ar' ? 'إجمالي الرصيد' : 'Total Balance'}</p>
                       <p className="text-2xl font-bold">{currencySymbol} {(mockUser.totalInvested + mockUser.totalReturns + mockUser.totalRoundUps).toFixed(2)}</p>
                     </div>
                     <Wallet className="h-8 w-8 text-green-600" />
@@ -179,7 +105,7 @@ export default function Index() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">{t.totalInvested}</p>
+                      <p className="text-sm font-medium text-muted-foreground">{language === 'ar' ? 'إجمالي الاستثمار' : 'Total Invested'}</p>
                       <p className="text-2xl font-bold">{currencySymbol} {mockUser.totalInvested.toFixed(2)}</p>
                     </div>
                     <TrendingUp className="h-8 w-8 text-blue-600" />
@@ -191,7 +117,7 @@ export default function Index() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">{t.roundUpBalance}</p>
+                      <p className="text-sm font-medium text-muted-foreground">{language === 'ar' ? 'رصيد التقريب' : 'Round-Up Balance'}</p>
                       <p className="text-2xl font-bold">{currencySymbol} {mockUser.totalRoundUps.toFixed(2)}</p>
                       <Badge variant="secondary" className="mt-1">Pending</Badge>
                     </div>
@@ -204,7 +130,7 @@ export default function Index() {
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">{t.monthlyGrowth}</p>
+                      <p className="text-sm font-medium text-muted-foreground">{language === 'ar' ? 'النمو الشهري' : 'Monthly Growth'}</p>
                       <p className="text-2xl font-bold text-green-600">+{((mockUser.totalReturns / mockUser.totalInvested) * 100).toFixed(1)}%</p>
                     </div>
                     <ArrowUpRight className="h-8 w-8 text-green-600" />
@@ -216,7 +142,7 @@ export default function Index() {
             {/* Demo Portfolio Performance */}
             <Card className="mb-8">
               <CardHeader>
-                <CardTitle>{t.portfolioPerformance}</CardTitle>
+                <CardTitle>{language === 'ar' ? 'أداء المحفظة' : 'Portfolio Performance'}</CardTitle>
                 <CardDescription>Balanced Portfolio - Last 30 days</CardDescription>
               </CardHeader>
               <CardContent>
@@ -256,7 +182,7 @@ export default function Index() {
             {/* Demo Recent Round-Ups */}
             <Card>
               <CardHeader>
-                <CardTitle>{t.recentRoundUps}</CardTitle>
+                <CardTitle>{language === 'ar' ? 'التقريب الأخير' : 'Recent Round-Ups'}</CardTitle>
                 <CardDescription>Your latest spare change investments</CardDescription>
               </CardHeader>
               <CardContent>
@@ -289,7 +215,7 @@ export default function Index() {
             <div className="text-center mt-8">
               <Button size="lg" onClick={handleTryDemo}>
                 <PieChart className="mr-2 h-5 w-5" />
-                {t.demo}
+                {language === 'ar' ? 'جرب العرض التوضيحي' : 'Try Demo'}
               </Button>
             </div>
           </div>
@@ -299,7 +225,7 @@ export default function Index() {
       {/* How It Works */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">{t.howItWorks}</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{language === 'ar' ? 'كيف يعمل' : 'How It Works'}</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <Card className="text-center">
@@ -307,10 +233,10 @@ export default function Index() {
                 <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Shield className="h-8 w-8 text-green-600" />
                 </div>
-                <CardTitle>{t.step1Title}</CardTitle>
+                <CardTitle>{language === 'ar' ? 'اربط بطاقتك' : 'Link Your Card'}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-base">{t.step1Desc}</CardDescription>
+                <CardDescription className="text-base">{language === 'ar' ? 'اربط بطاقتك المصرفية أو حسابك بأمان' : 'Securely connect your bank card or account'}</CardDescription>
               </CardContent>
             </Card>
 
@@ -319,10 +245,10 @@ export default function Index() {
                 <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Coins className="h-8 w-8 text-blue-600" />
                 </div>
-                <CardTitle>{t.step2Title}</CardTitle>
+                <CardTitle>{language === 'ar' ? 'اضبط قواعد التقريب' : 'Set Round-Up Rules'}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-base">{t.step2Desc}</CardDescription>
+                <CardDescription className="text-base">{language === 'ar' ? 'اختر كيفية تقريب مشترياتك' : 'Choose how to round up your purchases'}</CardDescription>
               </CardContent>
             </Card>
 
@@ -331,10 +257,10 @@ export default function Index() {
                 <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="h-8 w-8 text-purple-600" />
                 </div>
-                <CardTitle>{t.step3Title}</CardTitle>
+                <CardTitle>{language === 'ar' ? 'الاستثمار التلقائي' : 'Auto-Invest'}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription className="text-base">{t.step3Desc}</CardDescription>
+                <CardDescription className="text-base">{language === 'ar' ? 'يتم استثمار فكة النقود تلقائياً' : 'Your spare change is automatically invested'}</CardDescription>
               </CardContent>
             </Card>
           </div>
@@ -344,58 +270,68 @@ export default function Index() {
       {/* Features */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12">{t.features}</h2>
+          <h2 className="text-3xl font-bold text-center mb-12">{language === 'ar' ? 'المميزات' : 'Features'}</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <Card>
               <CardHeader>
                 <Globe className="h-8 w-8 text-green-600 mb-2" />
-                <CardTitle className="text-lg">{t.feature1Title}</CardTitle>
+                <CardTitle className="text-lg">{language === 'ar' ? 'تركيز على منطقة الخليج' : 'Gulf Region Focus'}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription>{t.feature1Desc}</CardDescription>
+                <CardDescription>{language === 'ar' ? 'دعم للعملات: ريال، درهم، ريال عماني، دينار بحريني، دينار كويتي، ريال قطري' : 'Support for SAR, AED, OMR, BHD, KWD, QAR currencies'}</CardDescription>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
                 <Shield className="h-8 w-8 text-blue-600 mb-2" />
-                <CardTitle className="text-lg">{t.feature2Title}</CardTitle>
+                <CardTitle className="text-lg">{language === 'ar' ? 'متوافق مع الشريعة' : 'Shariah Compliant'}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription>{t.feature2Desc}</CardDescription>
+                <CardDescription>{language === 'ar' ? 'خيارات استثمارية متوافقة مع التمويل الإسلامي' : 'Islamic finance compliant investment options'}</CardDescription>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
                 <PieChart className="h-8 w-8 text-purple-600 mb-2" />
-                <CardTitle className="text-lg">{t.feature3Title}</CardTitle>
+                <CardTitle className="text-lg">{language === 'ar' ? 'محافظ ذكية' : 'Smart Portfolios'}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription>{t.feature3Desc}</CardDescription>
+                <CardDescription>{language === 'ar' ? 'محافظ متنوعة من المحافظة إلى العدوانية' : 'Diversified portfolios from conservative to aggressive'}</CardDescription>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
                 <Shield className="h-8 w-8 text-orange-600 mb-2" />
-                <CardTitle className="text-lg">{t.feature4Title}</CardTitle>
+                <CardTitle className="text-lg">{language === 'ar' ? 'آمن ومنظم' : 'Secure & Regulated'}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription>{t.feature4Desc}</CardDescription>
+                <CardDescription>{language === 'ar' ? 'أمان بمستوى البنوك والامتثال التنظيمي' : 'Bank-level security and regulatory compliance'}</CardDescription>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
 
+      {/* QA Panel */}
+      <section className="py-16 bg-white">
+        <div className="container mx-auto px-4">
+          <QAPanel />
+        </div>
+      </section>
+
       {/* Supported Countries */}
       <section className="py-16 bg-gray-50">
         <div className="container mx-auto px-4 text-center">
-          <h2 className="text-3xl font-bold mb-8">{t.supportedCountries}</h2>
+          <h2 className="text-3xl font-bold mb-8">{language === 'ar' ? 'الدول المدعومة' : 'Supported Countries'}</h2>
           <div className="flex flex-wrap justify-center gap-4">
-            {t.countries.map((country, index) => (
+            {(language === 'ar' 
+              ? ['السعودية', 'الإمارات', 'عمان', 'البحرين', 'الكويت', 'قطر']
+              : ['Saudi Arabia', 'UAE', 'Oman', 'Bahrain', 'Kuwait', 'Qatar']
+            ).map((country, index) => (
               <Badge key={index} variant="outline" className="px-4 py-2 text-base">
                 {country}
               </Badge>
@@ -411,9 +347,9 @@ export default function Index() {
             <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
               <Coins className="h-5 w-5 text-white" />
             </div>
-            <span className="text-xl font-bold">{t.title}</span>
+            <span className="text-xl font-bold">{language === 'ar' ? 'جلف أكورنز' : 'Gulf Acorns'}</span>
           </div>
-          <p className="text-gray-400 mb-8">{t.subtitle}</p>
+          <p className="text-gray-400 mb-8">{language === 'ar' ? 'فكة النقود تبني مستقبلك' : 'Your spare change builds your future'}</p>
           <p className="text-sm text-gray-500">
             © 2024 Gulf Acorns. All rights reserved. | Built with MGX Platform
           </p>

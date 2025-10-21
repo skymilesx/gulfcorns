@@ -1,0 +1,61 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String        @id @default(cuid())
+  email       String        @unique
+  name        String?
+  createdAt   DateTime      @default(now())
+  roundupRule RoundupRule?
+  purchases   Purchase[]
+  spareLedger SpareLedger[]
+  investLots  InvestLot[]
+}
+
+model RoundupRule {
+  id         String   @id @default(cuid())
+  userId     String   @unique
+  type       String   // 'roundup', 'fixed', 'percent'
+  value      Float
+  multiplier Int      @default(1)
+  currency   String   @default("USD")
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Purchase {
+  id        String   @id @default(cuid())
+  userId    String
+  merchant  String
+  amount    Decimal  @db.Decimal(18, 3)
+  currency  String
+  createdAt DateTime @default(now())
+  roundup   Decimal  @db.Decimal(18, 3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SpareLedger {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Decimal  @db.Decimal(18, 3)
+  currency  String
+  status    String   @default("pending") // "pending", "settled"
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model InvestLot {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Decimal  @db.Decimal(18, 3)
+  currency  String
+  portfolio String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
