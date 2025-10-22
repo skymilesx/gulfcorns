@@ -16,6 +16,11 @@ async function getDemoUser() {
 
 export async function GET(request: NextRequest) {
   try {
+    // Check if DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      return new NextResponse('Database not configured', { status: 503 });
+    }
+
     const { searchParams } = new URL(request.url);
     const month = searchParams.get('month') || new Date().toISOString().slice(0, 7); // YYYY-MM format
     

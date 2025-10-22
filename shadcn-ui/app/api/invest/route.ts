@@ -21,6 +21,14 @@ async function getDemoUser() {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({
+        success: false,
+        error: 'Database not configured',
+      }, { status: 503 });
+    }
+
     const body = await request.json();
     const { portfolio } = investSchema.parse(body);
     

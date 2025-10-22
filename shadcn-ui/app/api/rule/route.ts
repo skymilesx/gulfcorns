@@ -24,6 +24,19 @@ async function getDemoUser() {
 
 export async function GET() {
   try {
+    // Check if DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          type: 'roundup',
+          value: 1,
+          multiplier: 1,
+          currency: 'USD',
+        },
+      });
+    }
+
     const user = await getDemoUser();
     
     const rule = await prisma.roundupRule.findUnique({
@@ -56,6 +69,19 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
+    // Check if DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          type: 'roundup',
+          value: 1,
+          multiplier: 1,
+          currency: 'USD',
+        },
+      });
+    }
+
     const body = await request.json();
     const { type, value, multiplier, currency } = ruleSchema.parse(body);
     

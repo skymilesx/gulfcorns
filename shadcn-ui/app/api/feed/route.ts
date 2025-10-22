@@ -16,6 +16,20 @@ async function getDemoUser() {
 
 export async function GET() {
   try {
+    // Check if DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({
+        success: true,
+        data: {
+          purchases: [],
+          investLots: [],
+          pendingAmount: 0,
+          totalInvested: 0,
+          rule: null,
+        },
+      });
+    }
+
     const user = await getDemoUser();
     
     // Get last 50 purchases

@@ -56,6 +56,14 @@ function calculateRoundUp(amount: number, rule: any, currency: string): number {
 
 export async function POST(request: NextRequest) {
   try {
+    // Check if DATABASE_URL is available
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({
+        success: false,
+        error: 'Database not configured',
+      }, { status: 503 });
+    }
+
     const body = await request.json();
     const { merchant, amount, currency } = purchaseSchema.parse(body);
     
