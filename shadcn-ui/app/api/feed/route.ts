@@ -73,7 +73,7 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       data: {
-        purchases: purchases.map(p => ({
+        purchases: purchases.map((p: any) => ({
           id: p.id,
           merchant: p.merchant,
           amount: Number(p.amount),
@@ -81,7 +81,7 @@ export async function GET() {
           roundup: Number(p.roundup),
           createdAt: p.createdAt,
         })),
-        investLots: investLots.map(l => ({
+        investLots: investLots.map((l: any) => ({
           id: l.id,
           amount: Number(l.amount),
           currency: l.currency,
