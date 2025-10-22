@@ -5,21 +5,19 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Coins, TrendingUp, Shield, Globe, Smartphone, PieChart, Wallet, ArrowUpRight } from 'lucide-react';
 import { gulfCurrencies, mockUser } from '@/data/mockData';
-import { useNavigate } from 'react-router-dom';
 import { useGulfAcornsStore, getTranslation } from '@/lib/store';
 import TopBarControls from '@/components/TopBarControls';
 import QAPanel from '@/components/QAPanel';
 
 export default function Index() {
-  const navigate = useNavigate();
   const { language, isRTL, getCurrencySymbol } = useGulfAcornsStore();
 
   const handleGetStarted = () => {
-    navigate('/dashboard');
+    window.location.href = '/dashboard';
   };
 
   const handleTryDemo = () => {
-    navigate('/dashboard');
+    window.location.href = '/dashboard';
   };
 
 
