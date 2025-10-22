@@ -132,7 +132,7 @@ export async function GET(request: NextRequest) {
                 </tr>
               </thead>
               <tbody>
-                ${purchases.map(p => `
+                ${purchases.map((p: any) => `
                   <tr>
                     <td>${new Date(p.createdAt).toLocaleDateString()}</td>
                     <td>${p.merchant}</td>
@@ -155,7 +155,7 @@ export async function GET(request: NextRequest) {
                 </tr>
               </thead>
               <tbody>
-                ${investLots.map(l => `
+                ${investLots.map((l: any) => `
                   <tr>
                     <td>${new Date(l.createdAt).toLocaleDateString()}</td>
                     <td>$${Number(l.amount).toFixed(2)}</td>
