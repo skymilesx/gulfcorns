@@ -5,6 +5,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "postinstall": "prisma generate",
     "lint": "next lint",
     "preview": "next start",
     "test": "vitest run",
@@ -74,10 +75,10 @@
     "uuid": "^10.0.0",
     "vaul": "^1.1.2",
     "zod": "^3.23.8",
-    "zustand": "^4.5.0"
+    "zustand": "^4.5.0",
+    "prisma": "latest"
   },
   "devDependencies": {
-    "prisma": "^5.0.0",
     "ts-node": "^10.9.0",
     "vitest": "^1.0.0",
     "@playwright/test": "^1.40.0",

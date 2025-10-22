@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import prisma from '../../../lib/db';
+import { prisma } from '../../../lib/prisma';
 
 // Helper function to get or create demo user
 async function getDemoUser() {
