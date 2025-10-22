@@ -20,10 +20,7 @@ async function main() {
   // Create default roundup rule
   const defaultRule = await prisma.roundupRule.upsert({
     where: {
-      userId_type: {
-        userId: demoUser.id,
-        type: 'roundup',
-      },
+      userId: demoUser.id,
     },
     update: {},
     create: {
