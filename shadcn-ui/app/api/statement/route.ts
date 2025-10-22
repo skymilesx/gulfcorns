@@ -67,9 +67,9 @@ export async function GET(request: NextRequest) {
     });
 
     // Calculate totals
-    const totalPurchases = purchases.reduce((sum, p) => sum + Number(p.amount), 0);
-    const totalRoundups = purchases.reduce((sum, p) => sum + Number(p.roundup), 0);
-    const totalInvested = investLots.reduce((sum, l) => sum + Number(l.amount), 0);
+    const totalPurchases = purchases.reduce((sum: number, p: any) => sum + Number(p.amount), 0);
+    const totalRoundups = purchases.reduce((sum: number, p: any) => sum + Number(p.roundup), 0);
+    const totalInvested = investLots.reduce((sum: number, l: any) => sum + Number(l.amount), 0);
 
     // Generate HTML statement
     const html = `

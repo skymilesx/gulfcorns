@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate total amount to invest
-    const totalAmount = pendingEntries.reduce((sum, entry) => {
+    const totalAmount = pendingEntries.reduce((sum: number, entry: any) => {
       return sum + Number(entry.amount);
     }, 0);
 
